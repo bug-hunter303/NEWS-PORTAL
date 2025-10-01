@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView,ListView,DetailView
-
-from newspaper.models import Post,Advertisement
+from django.views.generic import TemplateView,ListView,DetailView,CreateView
+from django.urls import reverse_lazy
+from newspaper.forms import ContactForm
+from newspaper.models import Post,Advertisement,OurTeam,Contact
 
 from django.utils import timezone
 from datetime import timedelta
@@ -95,3 +96,27 @@ class PostDetailView(SidebarMixin,DetailView):
         )
         return context 
     
+class AboutView(TemplateView):
+    template_name = "newsportal/about.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["our_teams"] = OurTeam.objects.all()
+        return context
+    
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
+    
+class ContactCreateView(SuccessMessageMixin , CreateView):
+    model = Contact 
+    template_name = "newsportal/contact.html"
+    form_class = ContactForm
+    success_url = reverse_lazy("contact")
+    success_message = "Your message has been sent successfuly "
+
+    def form_invalid(self , form):
+        messages.error(
+            self.request,
+            "There was an error sending your message. Please check the form.",
+        )
+        return super().form_invalid(form)
