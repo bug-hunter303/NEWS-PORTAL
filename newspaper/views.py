@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView,ListView
+from django.views.generic import TemplateView,ListView,DetailView
 
 from newspaper.models import Post,Advertisement
 
@@ -64,3 +64,13 @@ class PostListView(ListView):
         )
 
         return context
+
+class PostDetailView(DetailView):
+    model = Post 
+    template_name = "newsportal/detail/detail.html"
+    context_object_name = "post"
+
+    def get_queryset(self):
+        query = super().get_queryset() # Post.objects.all()
+        query = query.filter(published_at__isnull = False , status = "active")
+        return query
