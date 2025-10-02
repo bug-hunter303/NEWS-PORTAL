@@ -8,4 +8,9 @@ urlpatterns = [
     path("post-detail/<int:pk>/",views.PostDetailView.as_view(),name="post-detail"),
     path('about/',views.AboutView.as_view(), name="about"),
     path('contact/',views.ContactCreateView.as_view(), name="contact"),
+    path('post-by-category/<int:category_id>/',
+         views.PostByCategoryView.as_view(),
+         name="post-by-category",
+        ),
+    
 ]

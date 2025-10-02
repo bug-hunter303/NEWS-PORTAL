@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView,ListView,DetailView,CreateView
 from django.urls import reverse_lazy
 from newspaper.forms import ContactForm
-from newspaper.models import Post,Advertisement,OurTeam,Contact
+from newspaper.models import Category, Post,Advertisement,OurTeam,Contact
 
 from django.utils import timezone
 from datetime import timedelta
@@ -120,3 +120,23 @@ class ContactCreateView(SuccessMessageMixin , CreateView):
             "There was an error sending your message. Please check the form.",
         )
         return super().form_invalid(form)
+    
+class PostByCategoryView(SidebarMixin,ListView):
+    model = Post
+    template_name = "newsportal/list/list.html"
+    context_object_name = "posts"
+    paginate_by = 1
+
+    def get_queryset(self):
+        query = super().get_queryset()
+        query = query.filter(
+            published_at__isnull = False,
+            status = "active",
+            category__id = self.kwargs["category_id"],
+        ).order_by("-published_at")
+        return query
+    
+class CategoryListView(ListView):
+    model = Category
+    template_name = "newsportal/categories.html"
+    context_object_name = "categories"
