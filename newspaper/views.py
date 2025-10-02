@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView,ListView,DetailView,CreateView
 from django.urls import reverse_lazy
 from newspaper.forms import ContactForm
-from newspaper.models import Category, Post,Advertisement,OurTeam,Contact
+from newspaper.models import Category, Post,Advertisement,OurTeam,Contact, Tag
 
 from django.utils import timezone
 from datetime import timedelta
@@ -140,3 +140,23 @@ class CategoryListView(ListView):
     model = Category
     template_name = "newsportal/categories.html"
     context_object_name = "categories"
+
+class TagListView(ListView):
+    model = Tag
+    template_name = "newsportal/tags.html"
+    context_object_name = "tags"
+
+class PostByTagView(SidebarMixin,ListView):
+    model = Post
+    template_name = "newsportal/list/list.html"
+    context_object_name = "posts"
+    paginate_by = 1
+
+    def get_queryset(self):
+        query = super().get_queryset()
+        query = query.filter(
+            published_at__isnull = False,
+            status = "active",
+            tag__id = self.kwargs["tag_id"],
+        ).order_by("-published_at")
+        return query
